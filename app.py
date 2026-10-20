@@ -1,10 +1,10 @@
 
- import streamlit as st
+import streamlit as st
 import streamlit.components.v1 as components
 
 # Cấu hình trang Streamlit
 st.set_page_config(
-    page_title="Neon Cyber-Runner - Phonk & Skill Shop",
+    page_title="Neon Cyber-Runner - Shield Edition",
     page_icon="🏎️",
     layout="centered"
 )
@@ -18,9 +18,9 @@ st.markdown("""
     }
     h1 {
         text-align: center;
-        color: #ff0055;
+        color: #00f3ff;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055;
+        text-shadow: 0 0 10px #00f3ff, 0 0 20px #ff0055;
     }
     .stApp {
         background: radial-gradient(circle, #1a0022 0%, #050010 100%);
@@ -28,8 +28,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🔥 NEON RUNNER: PHONK EDITION 🔥")
-st.caption("Nhặt **Xu Vàng 🪙**, Trang bị **2 Kĩ Năng** trong Cửa Hàng, Hồi Chiêu **5s** & Quẩy cùng Phonk!")
+st.title("🔥 NEON RUNNER: SHIELD EDITION 🔥")
+st.caption("Thu thập **Xu Vàng 🪙**, mua **Bất Tử 3s (Có Khiên Chắn)**, Hồi chiêu **5s** & Quẩy nhạc Phonk!")
 
 # Mã HTML + JavaScript của Game
 game_code = r"""
@@ -48,10 +48,10 @@ game_code = r"""
     }
     #gameContainer {
         position: relative;
-        box-shadow: 0 0 35px #ff0055;
+        box-shadow: 0 0 35px #00f3ff;
         border-radius: 12px;
         overflow: hidden;
-        border: 2px solid #ff0055;
+        border: 2px solid #00f3ff;
     }
     canvas {
         background: #080010;
@@ -70,15 +70,15 @@ game_code = r"""
         box-sizing: border-box;
     }
     .btn {
-        background: #ff0055;
-        color: #fff;
+        background: #00f3ff;
+        color: #000;
         border: none;
         padding: 12px 28px;
         font-size: 18px;
         font-weight: bold;
         border-radius: 25px;
         cursor: pointer;
-        box-shadow: 0 0 20px #ff0055;
+        box-shadow: 0 0 20px #00f3ff;
         transition: 0.2s;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -86,15 +86,15 @@ game_code = r"""
     }
     .btn:hover {
         transform: scale(1.08);
-        box-shadow: 0 0 30px #ff0055;
-        background: #00f3ff;
-        color: #000;
+        box-shadow: 0 0 30px #00f3ff;
+        background: #ff0055;
+        color: #fff;
     }
     .shop-card {
-        border: 1px solid #ff0055;
-        background: rgba(255, 0, 85, 0.1);
+        border: 1px solid #00f3ff;
+        background: rgba(0, 243, 255, 0.1);
         border-radius: 10px;
-        padding: 10px;
+        padding: 12px;
         width: 85%;
         text-align: center;
         margin-bottom: 10px;
@@ -104,17 +104,18 @@ game_code = r"""
         justify-content: space-between;
         align-items: center;
         margin: 6px 0;
-        font-size: 13px;
+        font-size: 14px;
     }
     .action-btn {
         background: #ffe600;
         color: #000;
         border: none;
-        padding: 4px 10px;
+        padding: 5px 12px;
         font-size: 12px;
         font-weight: bold;
         border-radius: 12px;
         cursor: pointer;
+        margin-left: 4px;
     }
     .action-btn:disabled {
         background: #444;
@@ -122,16 +123,16 @@ game_code = r"""
         cursor: not-allowed;
     }
     .hud-skill-btn {
-        background: #ff0055;
-        color: #fff;
+        background: #00f3ff;
+        color: #000;
         border: none;
-        padding: 8px 12px;
-        font-size: 12px;
+        padding: 8px 16px;
+        font-size: 13px;
         font-weight: bold;
         border-radius: 15px;
         cursor: pointer;
-        box-shadow: 0 0 10px #ff0055;
-        min-width: 130px;
+        box-shadow: 0 0 12px #00f3ff;
+        min-width: 150px;
     }
     .hud-skill-btn:disabled {
         background: #333;
@@ -155,7 +156,8 @@ game_code = r"""
         position: absolute;
         bottom: 12px;
         display: flex;
-        gap: 10px;
+        justify-content: center;
+        width: 100%;
     }
 </style>
 </head>
@@ -169,35 +171,27 @@ game_code = r"""
         <div id="coinText" style="color: #ffe600;">🪙 0</div>
     </div>
 
-    <!-- Thanh hiển thị 2 kĩ năng trang bị với Hồi Chiêu -->
+    <!-- Thanh kĩ năng Bất tử -->
     <div id="skillBar">
-        <button id="slot1Btn" class="hud-skill-btn" onclick="useSkill(1)" disabled>[Q] Trống</button>
-        <button id="slot2Btn" class="hud-skill-btn" onclick="useSkill(2)" disabled>[E] Trống</button>
+        <button id="shieldBtn" class="hud-skill-btn" onclick="useShieldSkill()" disabled>[Q/E] Bất Tử: Trống</button>
     </div>
 
     <div id="overlay">
-        <h2 id="title" style="color: #ff0055; text-shadow: 0 0 15px #ff0055; font-size: 26px; margin: 5px 0;">CỬA HÀNG & TRANG BỊ</h2>
-        <div style="color: #ffe600; font-weight: bold; margin-bottom: 8px;" id="shopCoinText">Số xu hiện có: 🪙 0</div>
+        <h2 id="title" style="color: #00f3ff; text-shadow: 0 0 15px #00f3ff; font-size: 26px; margin: 5px 0;">CỬA HÀNG KĨ NĂNG</h2>
+        <div style="color: #ffe600; font-weight: bold; margin-bottom: 12px;" id="shopCoinText">Số xu hiện có: 🪙 0</div>
 
         <div class="shop-card">
             <div class="shop-item">
-                <span>🌪️ Gió Quét (5 Xu) - Sở hữu: <b id="owned1">0</b></span>
+                <span>🛡️ <b>Bất Tử 3s</b> (7 Xu) - Sở hữu: <b id="ownedShieldCount">0</b></span>
                 <div>
-                    <button class="action-btn" onclick="buySkill(1)">Mua</button>
-                    <button class="action-btn" onclick="equipSkill(1)">Trang bị</button>
-                </div>
-            </div>
-            <div class="shop-item">
-                <span>🛡️ Bất Tử (7 Xu) - Sở hữu: <b id="owned2">0</b></span>
-                <div>
-                    <button class="action-btn" onclick="buySkill(2)">Mua</button>
-                    <button class="action-btn" onclick="equipSkill(2)">Trang bị</button>
+                    <button class="action-btn" onclick="buyShield()">Mua</button>
+                    <button class="action-btn" onclick="equipShield()">Trang bị</button>
                 </div>
             </div>
         </div>
 
-        <div style="font-size: 12px; color: #00f3ff; margin-bottom: 10px;">
-            Trang bị hiện tại: Ô 1 (Q): <span id="eq1Text">Trống</span> | Ô 2 (E): <span id="eq2Text">Trống</span>
+        <div style="font-size: 13px; color: #00f3ff; margin-bottom: 12px;">
+            Trạng thái: <span id="equipStatusText" style="color: #ff0055; font-weight: bold;">Chưa trang bị</span>
         </div>
 
         <button class="btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
@@ -220,15 +214,12 @@ let isPlaying = false;
 let animationId;
 let keys = {};
 
-// Quản lý kĩ năng
-let ownedSkills = { 1: 0, 2: 0 }; // 1: Gió quét, 2: Bất tử
-let equippedSlots = { 1: null, 2: null }; // Tối đa 2 kĩ năng trang bị
-let cooldowns = { 1: 0, 2: 0 }; // Đếm ngược hồi chiêu (tính bằng frame ~ 60fps, 5s = 300)
-
-let isWindActive = false;
+// Quản lý kĩ năng Bất tử
+let shieldOwned = 0;
+let isShieldEquipped = false;
+let shieldCooldown = 0; // Đếm ngược hồi chiêu (5s = 300 frames)
 let isShieldActive = false;
-let windTimer = 0;
-let shieldTimer = 0;
+let shieldTimer = 0; // Tác dụng 3s = 180 frames
 
 // Trình tạo Nhạc Phonk
 let audioCtx = null;
@@ -300,14 +291,14 @@ function playSoundEffect(type) {
         gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
         osc.start(now);
         osc.stop(now + 0.2);
-    } else if (type === 'skill') {
+    } else if (type === 'shield') {
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(400, now);
-        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.3);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(900, now + 0.35);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
         osc.start(now);
-        osc.stop(now + 0.3);
+        osc.stop(now + 0.35);
     } else if (type === 'crash') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(200, now);
@@ -342,92 +333,70 @@ function stopPhonkMusic() {
     if (phonkTimer) clearInterval(phonkTimer);
 }
 
-// --- CỬA HÀNG & TRANG BỊ ---
+// Cửa hàng
 function updateShopUI() {
     document.getElementById("shopCoinText").innerText = "Số xu hiện có: 🪙 " + walletCoins;
-    document.getElementById("owned1").innerText = ownedSkills[1];
-    document.getElementById("owned2").innerText = ownedSkills[2];
-
-    let nameMap = { 1: "🌪️ Gió Quét", 2: "🛡️ Bất Tử" };
-    document.getElementById("eq1Text").innerText = equippedSlots[1] ? nameMap[equippedSlots[1]] : "Trống";
-    document.getElementById("eq2Text").innerText = equippedSlots[2] ? nameMap[equippedSlots[2]] : "Trống";
+    document.getElementById("ownedShieldCount").innerText = shieldOwned;
+    let status = document.getElementById("equipStatusText");
+    if (isShieldEquipped) {
+        status.innerText = "Đã trang bị 🛡️ Bất Tử";
+        status.style.color = "#00f3ff";
+    } else {
+        status.innerText = "Chưa trang bị";
+        status.style.color = "#ff0055";
+    }
 }
 
-function buySkill(type) {
-    let cost = type === 1 ? 5 : 7;
-    if (walletCoins >= cost) {
-        walletCoins -= cost;
-        ownedSkills[type]++;
+function buyShield() {
+    if (walletCoins >= 7) {
+        walletCoins -= 7;
+        shieldOwned++;
         playSoundEffect('coin');
         updateShopUI();
     }
 }
 
-function equipSkill(type) {
-    if (ownedSkills[type] <= 0) return;
-
-    // Kiểm tra nếu đã trang bị rồi
-    if (equippedSlots[1] === type || equippedSlots[2] === type) return;
-
-    if (!equippedSlots[1]) {
-        equippedSlots[1] = type;
-    } else if (!equippedSlots[2]) {
-        equippedSlots[2] = type;
-    } else {
-        // Đầy ô thì đổi Ô 1
-        equippedSlots[1] = type;
+function equipShield() {
+    if (shieldOwned > 0) {
+        isShieldEquipped = true;
+        updateShopUI();
     }
-    updateShopUI();
 }
 
-function updateHUDButtons() {
-    let nameMap = { 1: "🌪️ Gió Quét", 2: "🛡️ Bất Tử" };
-    
-    [1, 2].forEach(slot => {
-        let btn = document.getElementById(`slot${slot}Btn`);
-        let keyChar = slot === 1 ? "Q" : "E";
-        let skillType = equippedSlots[slot];
-
-        if (!skillType) {
-            btn.innerText = `[${keyChar}] Trống`;
-            btn.disabled = true;
-        } else if (cooldowns[slot] > 0) {
-            let secLeft = Math.ceil(cooldowns[slot] / 60);
-            btn.innerText = `[${keyChar}] Hồi: ${secLeft}s`;
-            btn.disabled = true;
-        } else {
-            let count = ownedSkills[skillType];
-            btn.innerText = `[${keyChar}] ${nameMap[skillType]} (${count})`;
-            btn.disabled = count <= 0;
-        }
-    });
+function updateHUDButton() {
+    let btn = document.getElementById("shieldBtn");
+    if (!isShieldEquipped) {
+        btn.innerText = "[Q/E] Bất Tử: Trống";
+        btn.disabled = true;
+    } else if (shieldCooldown > 0) {
+        let secLeft = Math.ceil(shieldCooldown / 60);
+        btn.innerText = `🛡️ Hồi chiêu: ${secLeft}s`;
+        btn.disabled = true;
+    } else {
+        btn.innerText = `🛡️ Bất Tử [Q/E] (${shieldOwned})`;
+        btn.disabled = shieldOwned <= 0;
+    }
 }
 
-function useSkill(slot) {
+function useShieldSkill() {
     if (!isPlaying) return;
-    let skillType = equippedSlots[slot];
 
-    if (skillType && cooldowns[slot] <= 0 && ownedSkills[skillType] > 0) {
-        ownedSkills[skillType]--;
-        cooldowns[slot] = 300; // 5 giây hồi chiêu (60 fps * 5s)
+    if (isShieldEquipped && shieldCooldown <= 0 && shieldOwned > 0) {
+        shieldOwned--;
+        shieldCooldown = 300; // 5 giây hồi chiêu
+        isShieldActive = true;
+        shieldTimer = 180; // 3 giây tác dụng
 
-        if (skillType === 1) {
-            isWindActive = true;
-            windTimer = 180; // Tác dụng 3s
-        } else if (skillType === 2) {
-            isShieldActive = true;
-            shieldTimer = 300; // Tác dụng 5s
-        }
-
-        playSoundEffect('skill');
-        updateHUDButtons();
+        playSoundEffect('shield');
+        updateHUDButton();
     }
 }
 
 document.addEventListener("keydown", e => {
     keys[e.key] = true;
-    if (e.key === 'q' || e.key === 'Q') useSkill(1);
-    if (e.key === 'e' || e.key === 'E') useSkill(2);
+    if (e.key === 'q' || e.key === 'Q' || e.key === 'e' || e.key === 'E' || e.key === ' ') {
+        useShieldSkill();
+    }
 });
 document.addEventListener("keyup", e => keys[e.key] = false);
 
@@ -445,12 +414,11 @@ function startGame() {
     coins = [];
     player.x = 180;
 
-    cooldowns = { 1: 0, 2: 0 };
-    isWindActive = false;
+    shieldCooldown = 0;
     isShieldActive = false;
 
     overlay.style.display = "none";
-    updateHUDButtons();
+    updateHUDButton();
 
     startPhonkMusic();
     animate();
@@ -462,8 +430,7 @@ function gameOver() {
     playSoundEffect('crash');
     cancelAnimationFrame(animationId);
 
-    walletCoins += sessionCoins; // Cộng xu trận vào ví
-
+    walletCoins += sessionCoins; // Cộng xu trận vào tài khoản
     overlay.style.display = "flex";
     document.getElementById("title").innerText = "GAME OVER";
     updateShopUI();
@@ -477,7 +444,7 @@ function spawnEntities() {
         let lane = lanes[Math.floor(Math.random() * lanes.length)];
         obstacles.push({
             x: lane, y: -60, width: 40, height: 60,
-            color: Math.random() > 0.5 ? '#ff0055' : '#00f3ff'
+            color: Math.random() > 0.5 ? '#ff0055' : '#ffe600'
         });
     }
 
@@ -502,22 +469,16 @@ function update() {
     document.getElementById("coinText").innerText = "🪙 " + sessionCoins;
 
     // Giảm thời gian tác dụng kĩ năng
-    if (isWindActive) {
-        windTimer--;
-        if (windTimer <= 0) isWindActive = false;
-    }
     if (isShieldActive) {
         shieldTimer--;
         if (shieldTimer <= 0) isShieldActive = false;
     }
 
-    // Đếm ngược thời gian hồi chiêu 5s
-    [1, 2].forEach(slot => {
-        if (cooldowns[slot] > 0) {
-            cooldowns[slot]--;
-        }
-    });
-    updateHUDButtons();
+    // Giảm thời gian hồi chiêu
+    if (shieldCooldown > 0) {
+        shieldCooldown--;
+    }
+    updateHUDButton();
 
     spawnEntities();
 
@@ -552,7 +513,8 @@ function update() {
         );
 
         if (hit) {
-            if (isWindActive || isShieldActive) {
+            if (isShieldActive) {
+                // Bất tử: Dọn dẹp vật cản
                 obstacles.splice(i, 1);
                 continue;
             } else {
@@ -565,7 +527,7 @@ function update() {
 }
 
 function drawBackground() {
-    ctx.strokeStyle = "rgba(255, 0, 85, 0.15)";
+    ctx.strokeStyle = "rgba(0, 243, 255, 0.15)";
     ctx.lineWidth = 2;
     for (let x = 0; x < canvas.width; x += 40) {
         ctx.beginPath();
@@ -589,31 +551,38 @@ function draw() {
         ctx.fill();
     });
 
-    // Vẽ xe
+    // Vẽ Xe người chơi
     ctx.shadowBlur = 18;
-    if (isShieldActive) {
-        ctx.shadowColor = "#00f3ff";
-        ctx.fillStyle = "#00f3ff";
-    } else if (isWindActive) {
-        ctx.shadowColor = "#a600ff";
-        ctx.fillStyle = "#a600ff";
-    } else {
-        ctx.shadowColor = "#ff0055";
-        ctx.fillStyle = "#ff0055";
-    }
+    ctx.shadowColor = isShieldActive ? "#00f3ff" : "#ff0055";
+    ctx.fillStyle = isShieldActive ? "#00f3ff" : "#ff0055";
     ctx.fillRect(player.x, player.y, player.width, player.height);
 
-    if (isShieldActive || isWindActive) {
-        ctx.strokeStyle = isShieldActive ? "#00f3ff" : "#a600ff";
+    // HIỆU ỨNG KIÊN CHẮN NEON KHI BẬT BẤT TỬ 🛡️
+    if (isShieldActive) {
+        let centerX = player.x + player.width / 2;
+        let centerY = player.y + player.height / 2;
+
+        // Vòng khiên bảo vệ phát sáng bên ngoài
+        ctx.save();
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = "#00f3ff";
+        ctx.strokeStyle = "rgba(0, 243, 255, 0.85)";
         ctx.lineWidth = 4;
-        ctx.strokeRect(player.x - 6, player.y - 6, player.width + 12, player.height + 12);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 45, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Màng năng lượng bên trong khiên
+        ctx.fillStyle = "rgba(0, 243, 255, 0.2)";
+        ctx.fill();
+        ctx.restore();
     }
 
-    // Đuôi lửa
+    // Đuôi lửa xe
     ctx.fillStyle = "#00f3ff";
     ctx.fillRect(player.x + 12, player.y + player.height, 16, 12 + Math.random() * 8);
 
-    // Vật cản
+    // Vẽ Vật cản
     obstacles.forEach(obs => {
         ctx.shadowBlur = 15;
         ctx.shadowColor = obs.color;
@@ -631,7 +600,7 @@ function animate() {
     animationId = requestAnimationFrame(animate);
 }
 
-// Khởi tạo giao diện Cửa Hàng ban đầu
+// Cập nhật giao diện cửa hàng ban đầu
 updateShopUI();
 </script>
 </body>
