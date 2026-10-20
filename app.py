@@ -168,15 +168,13 @@ let isPlaying = false;
 let animationId;
 let keys = {};
 
-// Trạng thái kĩ năng
-let skill1Owned = 0; // Số lần dùng Gió quét
-let skill2Owned = 0; // Số lần dùng Bất tử
+let skill1Owned = 0;
+let skill2Owned = 0;
 let isWindActive = false;
 let isShieldActive = false;
 let windTimer = 0;
 let shieldTimer = 0;
 
-// --- TRÌNH TẠO NHẠC FUNK/PHONK (WEB AUDIO API) ---
 let audioCtx = null;
 let funkTimer = null;
 let step = 0;
@@ -248,4 +246,169 @@ function playSoundEffect(type) {
         osc.stop(now + 0.2);
     } else if (type === 'skill') {
         osc.type = 'triangle';
-        osc.
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.3);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'hit') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.linearRampToValueAtTime(30, now + 0.4);
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+    }
+}
+
+function startFunkMusic() {
+    if (funkTimer) clearInterval(funkTimer);
+    const cowbellNotes = [659.25, 659.25, 783.99, 0, 659.25, 587.33, 659.25, 880.00];
+    const bassNotes = [110, 110, 146.83, 130.81, 110, 164.81, 146.83, 130.81];
+
+    step = 0;
+    funkTimer = setInterval(() => {
+        if (!isPlaying || !audioCtx) return;
+        let now = audioCtx.currentTime;
+        if (cowbellNotes[step % cowbellNotes.length] > 0) {
+            playCowbell(cowbellNotes[step % cowbellNotes.length], now);
+        }
+        playFunkBass(bassNotes[step % bassNotes.length], now);
+        step++;
+    }, 135);
+}
+
+function stopFunkMusic() {
+    if (funkTimer) clearInterval(funkTimer);
+}
+
+document.addEventListener("keydown", e => {
+    keys[e.key] = true;
+    if (e.key === 'q' || e.key === 'Q') activateSkill(1);
+    if (e.key === 'e' || e.key === 'E') activateSkill(2);
+});
+document.addEventListener("keyup", e => keys[e.key] = false);
+
+function updateButtons() {
+    let s1 = document.getElementById("skill1Btn");
+    let s2 = document.getElementById("skill2Btn");
+    
+    s1.innerText = `🌪️ Gió Quét [Q] (${skill1Owned})`;
+    s2.innerText = `🛡️ Miễn Khống [E] (${skill2Owned})`;
+
+    s1.disabled = skill1Owned <= 0 || isWindActive;
+    s2.disabled = skill2Owned <= 0 || isShieldActive;
+}
+
+function activateSkill(type) {
+    if (!isPlaying) return;
+
+    if (type === 1 && skill1Owned > 0 && !isWindActive) {
+        skill1Owned--;
+        isWindActive = true;
+        windTimer = 180;
+        playSoundEffect('skill');
+    } else if (type === 2 && skill2Owned > 0 && !isShieldActive) {
+        skill2Owned--;
+        isShieldActive = true;
+        shieldTimer = 300;
+        playSoundEffect('skill');
+    }
+    updateButtons();
+}
+
+function startGame() {
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
+    isPlaying = true;
+    score = 0;
+    totalCoins = 0;
+    gameSpeed = 4.5;
+    obstacles = [];
+    coins = [];
+    player.x = 180;
+
+    skill1Owned = 0;
+    skill2Owned = 0;
+    isWindActive = false;
+    isShieldActive = false;
+
+    overlay.style.display = "none";
+    updateButtons();
+
+    startFunkMusic();
+    animate();
+}
+
+function gameOver() {
+    isPlaying = false;
+    stopFunkMusic();
+    playSoundEffect('hit');
+    cancelAnimationFrame(animationId);
+
+    overlay.style.display = "flex";
+    document.getElementById("title").innerText = "GAME OVER";
+    let finalScore = document.getElementById("finalScore");
+    finalScore.innerText = `Điểm: ${Math.floor(score)} | Xu nhặt được: 🪙 ${totalCoins}`;
+    finalScore.style.display = "block";
+}
+
+function spawnEntities() {
+    let lanes = [50, 140, 230, 320];
+
+    if (Math.random() < 0.035) {
+        let lane = lanes[Math.floor(Math.random() * lanes.length)];
+        obstacles.push({
+            x: lane, y: -60, width: 40, height: 60,
+            color: Math.random() > 0.5 ? '#ff0055' : '#00f3ff'
+        });
+    }
+
+    if (Math.random() < 0.025) {
+        let lane = lanes[Math.floor(Math.random() * lanes.length)] + 10;
+        coins.push({ x: lane, y: -30, radius: 12 });
+    }
+}
+
+function update() {
+    if ((keys["ArrowLeft"] || keys["a"] || keys["A"]) && player.x > 20) {
+        player.x -= player.speed;
+    }
+    if ((keys["ArrowRight"] || keys["d"] || keys["D"]) && player.x < canvas.width - player.width - 20) {
+        player.x += player.speed;
+    }
+
+    score += 0.1;
+    gameSpeed += 0.001;
+    document.getElementById("scoreText").innerText = "SCORE: " + Math.floor(score);
+    document.getElementById("coinText").innerText = "🪙 " + totalCoins;
+
+    if (isWindActive) {
+        windTimer--;
+        if (windTimer <= 0) isWindActive = false;
+    }
+    if (isShieldActive) {
+        shieldTimer--;
+        if (shieldTimer <= 0) isShieldActive = false;
+    }
+
+    if (totalCoins >= 15) {
+        totalCoins -= 15;
+        skill1Owned++;
+        playSoundEffect('coin');
+    }
+    if (totalCoins >= 20) {
+        totalCoins -= 20;
+        skill2Owned++;
+        playSoundEffect('coin');
+    }
+    updateButtons();
+
+    spawnEntities();
+
+    for (let i = coins.length - 1; i >= 0; i--) {
