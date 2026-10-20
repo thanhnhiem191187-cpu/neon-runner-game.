@@ -28,9 +28,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("⚡ NEON CYBER-RUNNER ⚡")
-st.caption("Dùng phím mũi tên **Trái (←)** và **Phải (→)** hoặc phím **A / D** để điều khiển xe né vật cản!")
+st.caption("Dùng phím mũi tên **Trái (←)** và **Phải (→)** hoặc phím **A / D** để điều khiển xe né vật cản! (Có âm thanh sống động)")
 
-# Mã HTML + JavaScript của Game
+# Mã HTML + JavaScript của Game kèm Web Audio API tạo nhạc & hiệu ứng
 game_code = """
 <!DOCTYPE html>
 <html>
@@ -109,22 +109,97 @@ let isPlaying = false;
 let animationId;
 let keys = {};
 
+// --- HỆ THỐNG ÂM THANH (WEB AUDIO API) ---
+let audioCtx = null;
+let musicInterval = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+// Hiệu ứng tiếng bấm nút / va chạm
+function playSound(type) {
+    if (!audioCtx) return;
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    let now = audioCtx.currentTime;
+    if (type === 'start') {
+        osc.frequency.setValueAtChoice = 300;
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+    } else if (type === 'hit') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.linearRampToValueAtTime(40, now + 0.4);
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+    }
+}
+
+// Nhạc nền Cyberpunk tự động phát lặp lại
+function startCyberMusic() {
+    if (musicInterval) clearInterval(musicInterval);
+    let notes = [110, 130.81, 146.83, 164.81, 196.00]; // Âm giai huyền bí
+    musicInterval = setInterval(() => {
+        if (!isPlaying || !audioCtx) return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        let note = notes[Math.floor(Math.random() * notes.length)];
+        osc.frequency.setValueAtTime(note, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+    }, 180);
+}
+
+function stopCyberMusic() {
+    if (musicInterval) clearInterval(musicInterval);
+}
+// ----------------------------------------
+
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
 function startGame() {
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    
+    playSound('start');
     isPlaying = true;
     score = 0;
     gameSpeed = 4;
     obstacles = [];
     player.x = 180;
     overlay.style.display = "none";
+    
+    startCyberMusic();
     animate();
 }
 
 function gameOver() {
     isPlaying = false;
+    stopCyberMusic();
+    playSound('hit');
     cancelAnimationFrame(animationId);
+    
     overlay.style.display = "flex";
     document.getElementById("title").innerText = "GAME OVER";
     scoreText.innerText = "Điểm của bạn: " + Math.floor(score);
